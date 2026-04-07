@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FixGo - Roadside Assistance</title>
+
+<style>
+:root{
+--yellow:#FFD400;
+--yellow-light:#FFE44D;
+--black:#000000;
+--black2:#0f0f0f;
+--card:#141414;
+--border:#2b2b2b;
+--text:#ffffff;
+--muted:#bbbbbb;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+background:var(--black);
+color:var(--text);
+}
+
+/* NAVBAR */
+
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 40px;
+background:#000;
+border-bottom:1px solid var(--border);
+position:fixed;
+width:100%;
+top:0;
+}
+
+.logo{
+font-size:24px;
+font-weight:bold;
+color:var(--yellow);
+}
+
+nav ul{
+display:flex;
+gap:30px;
+list-style:none;
+}
+
+nav a{
+text-decoration:none;
+color:var(--muted);
+font-size:14px;
+}
+
+nav a:hover{
+color:var(--yellow);
+}
+
+/* HERO */
+
+.hero{
+height:100vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:80px 20px;
+}
+
+.hero h1{
+font-size:60px;
+margin-bottom:10px;
+}
+
+.hero span{
+color:var(--yellow);
+}
+
+.hero p{
+max-width:500px;
+color:var(--muted);
+margin-bottom:25px;
+}
+
+.btn{
+background:var(--yellow);
+border:none;
+padding:12px 28px;
+font-size:16px;
+font-weight:bold;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn:hover{
+background:var(--yellow-light);
+}
+
+/* SERVICES */
+
+#services{
+padding:80px 40px;
+background:var(--black2);
+}
+
+.section-title{
+text-align:center;
+font-size:36px;
+margin-bottom:50px;
+}
+
+.services{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;
+}
+
+.card{
+background:var(--card);
+border:1px solid var(--border);
+padding:25px;
+border-radius:10px;
+transition:0.3s;
+}
+
+.card:hover{
+border-color:var(--yellow);
+transform:translateY(-5px);
+}
+
+.card h3{
+color:var(--yellow);
+margin-bottom:10px;
+}
+
+.card p{
+font-size:14px;
+color:var(--muted);
+}
+
+/* ABOUT */
+
+#about{
+padding:80px 40px;
+text-align:center;
+}
+
+#about p{
+max-width:700px;
+margin:auto;
+color:var(--muted);
+margin-top:10px;
+}
+
+/* FOOTER */
+
+footer{
+background:#000;
+border-top:1px solid var(--border);
+padding:30px;
+text-align:center;
+margin-top:40px;
+}
+
+footer p{
+color:var(--muted);
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+<div class="logo">FixGo</div>
+<ul>
+<li><a href="#">Home</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#about">About</a></li>
+</ul>
+</nav>
+
+<section class="hero">
+<h1>Breakdown? <span>FixGo</span></h1>
+<p>Flat tyre, empty tank, dead battery — we bring roadside help to you instantly.</p>
+<button class="btn">Get Help Now</button>
+</section>
+
+<section id="services">
+<h2 class="section-title">Our Services</h2>
+
+<div class="services">
+
+<div class="card">
+<h3>Petrol Delivery</h3>
+<p>Fuel delivered to your location anytime you run out of petrol.</p>
+</div>
+
+<div class="card">
+<h3>Puncture Repair</h3>
+<p>On‑spot tyre repair service from trained technicians.</p>
+</div>
+
+<div class="card">
+<h3>Battery Jump Start</h3>
+<p>Dead battery? We jump start your vehicle instantly.</p>
+</div>
+
+<div class="card">
+<h3>Towing Service</h3>
+<p>Vehicle towing to the nearest garage safely and quickly.</p>
+</div>
+
+</div>
+</section>
+
+<section id="about">
+<h2 class="section-title">About FixGo</h2>
+<p>
+FixGo provides instant roadside assistance services including petrol delivery,
+puncture repair, towing, and battery jump start. Our mission is to make sure
+no driver is ever stranded on the road.
+</p>
+</section>
+
+<footer>
+<p>© 2026 FixGo Roadside Assistance</p>
+</footer>
+
+</body>
+</html>
