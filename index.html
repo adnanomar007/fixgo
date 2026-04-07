@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FixGo — Instant Roadside Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #FF5C00;
+      --orange-light: #FF7A2F;
+      --dark: #0D0D0D;
+      --dark2: #161616;
+      --dark3: #1F1F1F;
+      --card: #1A1A1A;
+      --border: #2A2A2A;
+      --text: #F0F0F0;
+      --muted: #888;
+      --green: #00E676;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--dark);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--orange); letter-spacing: -1px;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-right { display: flex; gap: 0.8rem; align-items: center; }
+    .btn-ghost {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text); padding: 0.45rem 1.1rem; border-radius: 8px;
+      font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-orange {
+      background: var(--orange); border: none;
+      color: #fff; padding: 0.45rem 1.1rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-orange:hover { background: var(--orange-light); }
+    .hamburger {
+      display: none; background: none; border: none;
+      color: var(--text); font-size: 1.4rem; cursor: pointer;
+    }
+
+    /* ─── MOBILE MENU ─── */
+    .mobile-menu {
+      display: none; position: fixed; top: 0; right: 0; bottom: 0;
+      width: 280px; background: var(--dark2);
+      border-left: 1px solid var(--border); z-index: 200;
+      flex-direction: column; padding: 2rem;
+      transform: translateX(100%); transition: transform 0.3s ease;
+    }
+    .mobile-menu.open { transform: translateX(0); display: flex; }
+    .mobile-menu-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 2rem;
+    }
+    .mobile-menu-logo { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--orange); }
+    .close-btn { background:none; border:none; color:var(--text); font-size:1.5rem; cursor:pointer; }
+    .mobile-menu ul { list-style:none; }
+    .mobile-menu ul li { margin-bottom: 1.2rem; }
+    .mobile-menu ul li a {
+      color: var(--text); text-decoration:none; font-size:1rem;
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.5rem 0; border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+    .mobile-menu ul li a:hover { color: var(--orange); }
+    .mobile-sos {
+      margin-top: auto;
+      background: #FF1744; color: #fff; border: none;
+      padding: 1rem; border-radius: 12px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; width: 100%; font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 8rem 1.5rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(255,92,0,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3);
+      color: var(--green); font-size: 0.78rem; font-weight: 600;
+      padding: 0.35rem 0.9rem; border-radius: 100px; margin-bottom: 1.5rem;
+      letter-spacing: 0.03em;
+    }
+    .badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800; line-height: 1.05;
+      letter-spacing: -2px; margin-bottom: 0.5rem;
+    }
+    .hero h1 span { color: var(--orange); }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted); max-width: 520px; margin: 1rem auto 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--orange); color: #fff;
+      padding: 0.9rem 2rem; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: transform 0.15s, background 0.2s;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-primary:hover { background: var(--orange-light); transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent; color: var(--text);
+      padding: 0.9rem 2rem; border-radius: 12px;
+      font-size: 1rem; font-weight: 600;
+      border: 1px solid var(--border); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: border-color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+    .hero-stats {
+      display: flex; gap: 2.5rem; margin-top: 3.5rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem; font-weight: 800; color: var(--orange);
+    }
+    .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    /* ─── LOCATION BAR ─── */
+    .location-bar {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: var(--dark3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.7rem 1.2rem;
+      max-width: 420px; margin: 2rem auto 0; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .location-bar:hover { border-color: var(--orange); }
+    .location-bar span { font-size: 0.9rem; color: var(--muted); flex: 1; }
+    .detect-btn {
+      background: var(--orange); color: #fff;
+      border: none; border-radius: 8px; padding: 0.4rem 0.9rem;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 5rem 1.5rem; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em;
+      color: var(--orange); text-transform: uppercase; margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -1px; margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--muted); max-width: 480px; line-height: 1.7; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* ─── SERVICES ─── */
+    #services { background: var(--dark2); }
+    .services-header { text-align: center; margin-bottom: 3rem; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+    }
+    .service-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.8rem;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .service-card:hover { border-color: var(--orange); transform: translateY(-4px); }
+    .service-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .service-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;
+    }
+    .service-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+    .service-link {
+      display: inline-block; margin-top: 1rem;
+      color: var(--orange); font-size: 0.85rem; font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* ─── TRACK ─── */
+    #track { background: var(--dark); }
+    .track-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+    }
+    .track-status {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem;
+    }
+    .track-status h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem;
+      color: var(--green);
+    }
+    .track-step {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .track-step:last-child { border-bottom: none; }
+    .step-icon { font-size: 1.1rem; width: 28px; text-align: center; }
+    .step-done { color: var(--green); }
+    .step-active { color: var(--orange); font-weight: 600; }
+    .step-pending { color: var(--muted); }
+
+    /* ─── ABOUT ─── */
+    #about { background: var(--dark2); }
+    .about-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .about-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+    }
+    .about-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .about-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem;
+    }
+    .about-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--dark); border-top: 1px solid var(--border);
+      padding: 3rem 1.5rem;
+    }
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--orange); }
+    .footer-links { display:flex; gap:1.5rem; flex-wrap:wrap; }
+    .footer-links a { color:var(--muted); font-size:0.88rem; text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--text); }
+    .footer-contact { color:var(--muted); font-size:0.85rem; line-height:1.8; }
+    .footer-bottom {
+      text-align:center; color:var(--muted);
+      font-size:0.78rem; margin-top:2rem; padding-top:1.5rem;
+      border-top:1px solid var(--border);
+      max-width:1100px; margin-left:auto; margin-right:auto;
+    }
+
+    /* ─── SOS FAB ─── */
+    .sos-fab {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 99;
+      background: #FF1744; color: #fff;
+      border: none; border-radius: 50px;
+      padding: 0.9rem 1.4rem; font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; font-family:'DM Sans',sans-serif;
+      box-shadow: 0 4px 20px rgba(255,23,68,0.5);
+      transition: transform 0.2s;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .sos-fab:hover { transform: scale(1.05); }
+
+    /* ─── MODALS ─── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; width: 90%; max-width: 420px;
+      position: relative;
+    }
+    .modal h2 {
+      font-family: 'Syne', sans-serif; font-size: 1.3rem;
+      font-weight: 800; margin-bottom: 0.3rem;
+    }
+    .modal p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--muted);
+      font-size: 1.3rem; cursor: pointer;
+    }
+    .modal input, .modal select {
+      width: 100%; background: var(--dark3);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 0.8rem 1rem; border-radius: 10px;
+      font-size: 0.9rem; margin-bottom: 0.8rem;
+      font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.2s;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--orange); }
+    .modal-btn {
+      width: 100%; background: var(--orange); color: #fff;
+      border: none; padding: 0.9rem; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; margin-top: 0.5rem;
+      transition: background 0.2s;
+    }
+    .modal-btn:hover { background: var(--orange-light); }
+    .modal-alt { text-align:center; margin-top:1rem; font-size:0.85rem; color:var(--muted); }
+    .modal-alt a { color: var(--orange); cursor: pointer; text-decoration: none; }
+
+    /* bookings */
+    .booking-list { list-style:none; }
+    .booking-item {
+      background: var(--dark3); border:1px solid var(--border);
+      border-radius:12px; padding:1rem; margin-bottom:0.8rem;
+    }
+    .booking-item h4 { font-family:'Syne',sans-serif; font-weight:700; }
+    .booking-item span { font-size:0.8rem; color:var(--muted); }
+
+    /* settings */
+    .setting-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0.9rem 0; border-bottom:1px solid var(--border);
+      font-size:0.9rem;
+    }
+    .toggle {
+      width:42px; height:24px; background:var(--border);
+      border-radius:100px; position:relative; cursor:pointer; transition:background 0.2s;
+    }
+    .toggle.on { background: var(--orange); }
+    .toggle::after {
+      content:''; position:absolute; top:3px; left:3px;
+      width:18px; height:18px; background:#fff; border-radius:50%;
+      transition:transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(18px); }
+
+    /* sos modal */
+    .sos-modal-btn {
+      width:100%; background:#FF1744; color:#fff; border:none;
+      padding:1rem; border-radius:12px; font-size:1rem; font-weight:700;
+      cursor:pointer; font-family:'DM Sans',sans-serif; margin-top:1rem;
+    }
+    .sos-cancel {
+      width:100%; background:transparent; color:var(--muted); border:1px solid var(--border);
+      padding:0.7rem; border-radius:12px; font-size:0.9rem;
+      cursor:pointer; font-family:'DM Sans',sans-serif; margin-top:0.6rem;
+    }
+
+    /* confirm */
+    .confirm-modal { text-align:center; }
+    .confirm-modal .check { font-size:3rem; margin-bottom:1rem; }
+    .confirm-modal h2 { margin-bottom:0.5rem; }
+    .booking-id {
+      background:var(--dark3); border:1px solid var(--border);
+      border-radius:10px; padding:1rem; margin:1.2rem 0; font-size:0.9rem;
+    }
+    .booking-id strong { color:var(--orange); font-size:1.1rem; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .track-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">FixGo</div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#track">Track Help</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-ghost" onclick="openModal('login-modal')">Login</button>
+    <button class="btn-orange" onclick="openModal('booking-modal')">Book Now</button>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu-header">
+    <span class="mobile-menu-logo">FixGo</span>
+    <button class="close-btn" onclick="toggleMenu()">✕</button>
+  </div>
+  <ul>
+    <li><a href="#services" onclick="toggleMenu()">🛠️ Services</a></li>
+    <li><a href="#track" onclick="toggleMenu()">📍 Track Help</a></li>
+    <li><a href="#about" onclick="toggleMenu()">ℹ️ About</a></li>
+    <li><a href="#" onclick="toggleMenu();openModal('login-modal')">👤 My Bookings</a></li>
+    <li><a href="#" onclick="toggleMenu();openModal('settings-modal')">⚙️ Settings</a></li>
+  </ul>
+  <button class="mobile-sos" onclick="toggleMenu();openModal('sos-modal')">🆘 Emergency SOS</button>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> Available 24/7 — Avg response 8 mins</div>
+  <h1>Breakdown?<br><span>FixGo.</span></h1>
+  <p class="hero-sub">Flat tyre, empty tank, dead battery — we've got you covered. One tap, help is on the way.</p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="openModal('booking-modal')">🆘 Get Help Now</button>
+    <button class="btn-outline" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">See Services ↓</button>
+  </div>
+  <div class="location-bar" onclick="detectLocation()">
+    <span>📍 <span id="loc-text">Tap to detect your location</span></span>
+    <button class="detect-btn">Detect</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-val">50K+</div><div class="stat-label">Rescues Done</div></div>
+    <div class="stat"><div class="stat-val">4.9★</div><div class="stat-label">User Rating</div></div>
+    <div class="stat"><div class="stat-val">8 min</div><div class="stat-label">Avg Arrival</div></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="services-header">
+      <div class="section-label">What We Fix</div>
+      <div class="section-title">Our Services</div>
+    </div>
+    <div class="services-grid">
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">🚗</div>
+        <h3>Ride Booking</h3>
+        <p>Book rides instantly when you're stranded. Available cars in minutes.</p>
+        <span class="service-link">Book Now →</span>
+      </div>
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">⛽</div>
+        <h3>Petrol Delivery</h3>
+        <p>Fuel delivered wherever you are. We bring the petrol to you.</p>
+        <span class="service-link">Order Now →</span>
+      </div>
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">🛞</div>
+        <h3>Puncture Repair</h3>
+        <p>Expert tyre technicians reach you fast. On-spot repair or replacement.</p>
+        <span class="service-link">Get Repair →</span>
+      </div>
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">🔋</div>
+        <h3>EV Charging</h3>
+        <p>Mobile EV charging unit dispatched to your location immediately.</p>
+        <span class="service-link">Charge Now →</span>
+      </div>
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">🚛</div>
+        <h3>Towing Service</h3>
+        <p>Heavy-duty towing to the nearest garage or your preferred location.</p>
+        <span class="service-link">Tow Now →</span>
+      </div>
+      <div class="service-card" onclick="openModal('booking-modal')">
+        <div class="service-icon">⚡</div>
+        <h3>Battery Jump Start</h3>
+        <p>Dead battery? Our team jumpstarts your vehicle on-site, fast.</p>
+        <span class="service-link">Get Jump →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACK -->
+<section id="track">
+  <div class="container">
+    <div class="track-layout">
+      <div>
+        <div class="section-label">Live Tracking</div>
+        <div class="section-title">Track Your Help</div>
+        <p class="section-desc">Know exactly where your technician is in real time. Every step, every minute — visible to you.</p>
+        <br><br>
+        <button class="btn-primary" onclick="startTracking()">📍 Track Now</button>
+      </div>
+      <div class="track-status">
+        <h4 id="track-heading">Help is on the way!</h4>
+        <div class="track-step">
+          <span class="step-icon step-done">✅</span>
+          <span class="step-done">Request Confirmed</span>
+        </div>
+        <div class="track-step">
+          <span class="step-icon step-done">✅</span>
+          <span class="step-done">Technician Assigned</span>
+        </div>
+        <div class="track-step">
+          <span class="step-icon step-active">🔄</span>
+          <span class="step-active">En Route to You</span>
+        </div>
+        <div class="track-step">
+          <span class="step-icon step-pending">⏳</span>
+          <span class="step-pending">Arrived</span>
+        </div>
+        <div class="track-step">
+          <span class="step-icon step-pending">⏳</span>
+          <span class="step-pending">Service Completed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="section-label">Who We Are</div>
+    <div class="section-title">About FixGo</div>
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon">🎯</div>
+        <h3>Our Mission</h3>
+        <p>To eliminate the stress of vehicle breakdowns by providing instant, reliable roadside assistance across India — 24 hours a day, 7 days a week.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🌍</div>
+        <h3>Coverage</h3>
+        <p>Operating in 50+ cities with a growing network of 5,000+ certified technicians ready to help you within minutes.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🔒</div>
+        <h3>Safety First</h3>
+        <p>All our technicians are background-verified, trained, and rated. You can see who's coming to help before they arrive.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-logo">FixGo</div>
+      <p style="color:var(--muted);font-size:0.82rem;margin-top:0.3rem;">Breakdown? FixGo.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#services">Services</a>
+      <a href="#track">Track Help</a>
+      <a href="#about">About</a>
+      <a href="#" onclick="openModal('login-modal')">Login</a>
+    </div>
+    <div class="footer-contact">
+      📞 1800-FIX-GOGO (Toll Free)<br>
+      📧 help@fixgo.in
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 FixGo Technologies Pvt. Ltd. All rights reserved.</div>
+</footer>
+
+<!-- SOS FAB -->
+<button class="sos-fab" onclick="openModal('sos-modal')">🆘 SOS</button>
+
+<!-- ═══════════ MODALS ═══════════ -->
+
+<!-- LOGIN -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login-modal')">✕</button>
+    <h2>Welcome Back</h2>
+    <p>Login to manage your bookings</p>
+    <input type="text" placeholder="📱 Phone number or Email"/>
+    <input type="password" placeholder="🔑 Password"/>
+    <button class="modal-btn" onclick="closeModal('login-modal')">Login</button>
+    <div class="modal-alt">Don't have an account? <a onclick="switchModal('login-modal','signup-modal')">Sign Up</a></div>
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div class="modal-overlay" id="signup-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signup-modal')">✕</button>
+    <h2>Create Account</h2>
+    <p>Create your FixGo account</p>
+    <input type="text" placeholder="👤 Full Name"/>
+    <input type="text" placeholder="📱 Phone Number"/>
+    <input type="email" placeholder="📧 Email Address"/>
+    <input type="password" placeholder="🔑 Create Password"/>
+    <button class="modal-btn" onclick="closeModal('signup-modal')">Create Account</button>
+    <div class="modal-alt">Already have an account? <a onclick="switchModal('signup-modal','login-modal')">Login</a></div>
+  </div>
+</div>
+
+<!-- BOOKINGS -->
+<div class="modal-overlay" id="bookings-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('bookings-modal')">✕</button>
+    <h2>My Bookings</h2>
+    <br>
+    <ul class="booking-list">
+      <li class="booking-item">
+        <h4>🛞 Puncture Repair</h4>
+        <span>FG-2026-001 · Completed · 3 Apr 2026</span>
+      </li>
+      <li class="booking-item">
+        <h4>⛽ Petrol Delivery</h4>
+        <span>FG-2026-002 · Completed · 28 Mar 2026</span>
+      </li>
+      <li class="booking-item">
+        <h4>🔋 Battery Jump Start</h4>
+        <span>FG-2026-003 · Completed · 15 Mar 2026</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- BOOKING FORM -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('booking-modal')">✕</button>
+    <h2>Book a Service</h2>
+    <p>Tell us where you are and what you need</p>
+    <select>
+      <option value="">— Select a Service —</option>
+      <option>🚗 Ride Booking</option>
+      <option>⛽ Petrol Delivery</option>
+      <option>🛞 Puncture Repair</option>
+      <option>🔋 EV Charging</option>
+      <option>🚛 Towing Service</option>
+      <option>⚡ Battery Jump Start</option>
+    </select>
+    <input type="text" placeholder="📍 Your location" id="booking-location"/>
+    <input type="text" placeholder="📝 Additional notes (optional)"/>
+    <button class="modal-btn" onclick="confirmBooking()">🚀 Confirm Booking</button>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('settings-modal')">✕</button>
+    <h2>Settings</h2>
+    <br>
+    <div class="setting-row">
+      <span>🌙 Dark Mode</span>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <span>🔔 Push Notifications</span>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <span>📍 Location Access</span>
+      <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="setting-row">
+      <span>🌐 Language</span>
+      <select style="background:var(--dark3);border:1px solid var(--border);color:var(--text);padding:0.3rem 0.6rem;border-radius:8px;font-family:'DM Sans',sans-serif;">
+        <option>English</option>
+        <option>Malayalam</option>
+        <option>Hindi</option>
+        <option>Tamil</option>
+      </select>
+    </div>
+    <br>
+    <button class="modal-btn" style="background:var(--border);color:var(--text);" onclick="closeModal('settings-modal')">🚪 Logout</button>
+  </div>
+</div>
+
+<!-- SOS MODAL -->
+<div class="modal-overlay" id="sos-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('sos-modal')">✕</button>
+    <h2>🆘 Emergency SOS</h2>
+    <br>
+    <p>This will immediately alert the nearest FixGo team to your current GPS location. Use only in emergencies.</p>
+    <button class="sos-modal-btn" onclick="sendSOS()">Send SOS Now</button>
+    <button class="sos-cancel" onclick="closeModal('sos-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal confirm-modal">
+    <div class="check">✅</div>
+    <h2>Booking Confirmed!</h2>
+    <p>Your request has been placed. Help is on the way.</p>
+    <div class="booking-id">
+      Booking ID<br>
+      <strong>FG-2026-001</strong>
+    </div>
+    <button class="modal-btn" onclick="closeModal('confirm-modal')">Done</button>
+  </div>
+</div>
+
+<script>
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  function switchModal(from, to) {
+    closeModal(from);
+    openModal(to);
+  }
+  function toggleMenu() {
+    const m = document.getElementById('mobile-menu');
+    m.classList.toggle('open');
+  }
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+
+  function detectLocation() {
+    const el = document.getElementById('loc-text');
+    el.textContent = 'Detecting...';
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        el.textContent = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
+        document.getElementById('booking-location').value = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
+      }, () => {
+        el.textContent = 'Location access denied';
+      });
+    } else {
+      el.textContent = 'Geolocation not supported';
+    }
+  }
+
+  function confirmBooking() {
+    closeModal('booking-modal');
+    openModal('confirm-modal');
+  }
+
+  function sendSOS() {
+    closeModal('sos-modal');
+    alert('🆘 SOS Sent! Help is on the way. Stay calm.');
+  }
+
+  function startTracking() {
+    document.getElementById('track').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
